@@ -1,0 +1,23 @@
+{
+  "name": "tollchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ethereumjs/block": "^3.6.2",
+    "@ethereumjs/common": "^2.6.4",
+    "@ethereumjs/tx": "^3.5.1",
+    "@ethereumjs/vm": "^5.9.0",
+    "@metamask/safe-event-emitter": "^2.0.0",
+    "@truffle/contract": "^4.3.19",
+    "@truffle/hdwallet-provider": "^2.0.6",
+    "express": "^4.18.2",
+    "web3": "^1.7.3"
+  }
+}
