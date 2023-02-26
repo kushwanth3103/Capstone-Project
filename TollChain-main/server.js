@@ -17,7 +17,7 @@ if (typeof web3 !== 'undefined') {
     var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545'))
 }
 
-const contractAdd="0x84b814778c912c23Dc4EEeCc54bc477299a660d6";
+const contractAdd="0x3b5Ce224C975a729fc71D9EcCDcb64473A0843Ab";
 var contract= new web3.eth.Contract(abi,contractAdd);
 console.log('Server started in http://localhost:3000 in browser');
 
@@ -95,7 +95,7 @@ app.post('/userReg',async function(req,res,next){
 
 //User Profile
 app.get('/userProfile',async function(req,res){
-    var userAd=req.body.userAdd;
+    var userAd=req.query.userAdd;
     try{
         await contract.methods.getUserProfile(userAd).call().then(function(value){
             console.log(value);

@@ -10,7 +10,7 @@
   "sourceMap": "63:556:0:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "63:556:0:-:0;;;;;;;;",
   "source": "//SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.0;\n\nlibrary SafeMath {\n  function mul(uint256 a, uint256 b) internal pure returns (uint256) {\n    if (a == 0) {\n      return 0;\n    }\n    uint256 c = a * b;\n    assert(c / a == b);\n    return c;\n  }\n\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\n    uint256 c = a / b;\n    return c;\n  }\n\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\n    assert(b <= a);\n    return a - b;\n  }\n\n  function add(uint256 a, uint256 b) internal pure returns (uint256) {\n    uint256 c = a + b;\n    assert(c >= a);\n    return c;\n  }\n}\n\ninterface IERC20 {\n    function totalSupply() external view returns (uint256);\n    function balanceOf(address account) external view returns(uint256);\n    //function transfer(address recipient,uint256 amount) external returns (bool);\n    function transferFrom(address sender,address recipient,uint256 amount) external returns (bool);\n    //function allowance(address owner,address spender) external view returns (uint256);\n    //function approve(address spender,uint256 amount) external returns (bool);\n\n    event Transfer(\n        address indexed from,\n        address indexed to,\n        uint256 value\n    );\n}\n\ncontract ERC20Token is IERC20 {\n    uint public constant decimals = 18;\n\n    mapping(address => uint256) public balances;\n    uint256 totalSupply_ = 10 ether;\n\n    function totalSupply() public override view returns (uint256){\n        return totalSupply_;\n    }\n\n    function balanceOf(address tokenOwner) public override view returns (uint256){\n        return balances[tokenOwner];\n    }\n\n    function transferFrom(address sender,address recipient,uint256 amount) public override returns (bool){\n        balances[sender]=balances[sender]-(amount);\n        balances[recipient]=balances[recipient]+amount;\n        emit Transfer(msg.sender,recipient,amount);\n        return true;\n    }\n\n    function mint(uint256 tokens,address _owner)internal returns (bool){\n      totalSupply_=totalSupply_+(tokens);\n      balances[_owner]=balances[_owner]+(tokens);\n      emit Transfer(address(0),_owner,tokens);\n      return true;\n    }\n\n\n}",
-  "sourcePath": "C:\\Users\\Kuswanth Sai\\Downloads\\TollChain-main\\TollChain-main\\contracts\\ERC20.sol",
+  "sourcePath": "C:\\Users\\Kuswanth Sai\\Downloads\\Weight-based-Toll-collection-MANAGEMENT-USING-BLOCKCHAIN-IoT-and-ML.--master\\Weight-based-Toll-collection-MANAGEMENT-USING-BLOCKCHAIN-IoT-and-ML.--master\\TollChain-main\\contracts\\ERC20.sol",
   "ast": {
     "absolutePath": "project:/contracts/ERC20.sol",
     "exportedSymbols": {
@@ -3068,8 +3068,8 @@
     "version": "0.8.13+commit.abaa5c0e.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.11",
-  "updatedAt": "2023-01-30T14:21:50.248Z",
+  "schemaVersion": "3.4.12",
+  "updatedAt": "2023-02-25T17:28:54.186Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

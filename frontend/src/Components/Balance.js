@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 //import { useNavigate } from "react-router-dom";
-function RegistrationForm()
+import './Balance.css';
+function Balance()
 {
-    const [formValue, setFormValue]= useState({uName:'', userAdd:'',rfid:'',vehicleNum:''});
+    const [formValue, setFormValue]= useState({userAdd:''});
+    const [data,setData]=useState({userName:'-',vehicleNum:'-',balance:'0'});
     const [message, setMessage]= useState();
     //const navigate= useNavigate();
     const handleInput=(e)=>{
@@ -11,15 +13,19 @@ function RegistrationForm()
     }
     const handleSubmit= async(e)=>{
        e.preventDefault();
-       const allInputvalue= { uName: formValue.uName, userAdd:formValue.userAdd, rfid:formValue.rfid, vehicleNum:formValue.vehicleNum}; 
-       console.log(allInputvalue);
-      let res= await fetch("http://localhost:3000/userReg",{
-        method:"POST",
+       //const allInputvalue= { userAdd: formValue.userAdd}; 
+       //console.log(JSON.stringify(allInputvalue));
+       var url='http://localhost:3000/userProfile?userAdd='+formValue.userAdd;
+       console.log(url);
+      let res= await fetch(url,{
+        method:"GET",
         headers:{'content-type':'application/json'},
-        body:JSON.stringify(allInputvalue)
       });
+      console.log("hi");
       let resjson= await res.json();
-      if(res.status===200)
+      console.log(resjson);
+      setData(resjson);
+      /*if(res.status===200)
       {
         console.log(allInputvalue);
         setMessage(resjson.success);
@@ -30,10 +36,52 @@ function RegistrationForm()
       } else{
         console.log(allInputvalue);
         setMessage("Some Error Occured");
-      }
+      }*/
     }
     return(
         <React.Fragment>
+            <div className="row">
+                <div className="col-md-4">
+                    <form onSubmit={ handleSubmit}>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <div className="mb-4 mt-5">
+                                    <label className="form-lable">Hash Address</label>
+                                    <input type="text" name="userAdd" className="form-control" placeholder="Enter the Hash address" value={formValue.userAdd} onChange={ handleInput}/>
+                                </div>
+                            </div>
+                            <div className="col-md-12">
+                                <div className="mb-3" align='center'>
+                                    <label className="form-lable"></label>
+                                    <button type="submit" className="btn btn-success btn-lg">Proceed</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div className="col-md-8">
+                    <div className="col-md-4">
+                        <table className="table table-bordered table-striped mt-5">
+                            <tr>
+                                <td>Name : </td>
+                                <td>{data.userName}</td>
+                            </tr>
+                            <tr>
+                                <td>Vehicle Number : </td>
+                                <td>{data.vehicleNum}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div className="col-md-8">
+                        <div className="test">
+                            <p style={{ color: 'white' }}>Balance:</p>
+                            <p style={{ color: 'white' }}>{data.balance}</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            </React.Fragment>/*</div>
             <div className="container">
                 <div className="row">
                     <div className="col-md-12">
@@ -94,8 +142,8 @@ function RegistrationForm()
                     </div>
                 </div>
             </div>
-        </React.Fragment>
+        </React.Fragment>*/
 
     );
 }
-export default RegistrationForm;
+export default Balance;

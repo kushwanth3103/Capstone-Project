@@ -1,0 +1,12 @@
+div.test
+{
+    width: 150px;
+    height: 120px;
+    padding: 10px;
+    border: 2px solid hsl(0, 5%, 85%);
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    float: right;
+    margin-right: 80px;
+    background-color: rgb(148, 77, 215);
+}
