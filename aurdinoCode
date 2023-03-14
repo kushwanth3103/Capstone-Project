@@ -1,0 +1,170 @@
+#include <SPI.h>
+#include <MFRC522.h>
+#include "HX711.h"
+#include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
+#include <WiFiClient.h>
+#include <ArduinoJson.h>
+
+#define SS_PIN 4  //D2
+#define RST_PIN 5 //D1
+ 
+
+const int LOADCELL_DOUT_PIN = 16;
+const int LOADCELL_SCK_PIN = 0;
+
+HX711 scale;
+
+String tag;
+String tagConfirm;
+String returnStatus;
+double weight;
+String vType;
+MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance/object.
+int variable = 0;
+int amountValue;
+WiFiClient wiFiClient;
+void setup()
+{
+  Serial.begin(9600);   // Initiate a serial communication
+  WiFi.begin("realme 3 Pro1", "123456789");   //WiFi connection
+ 
+  while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
+ 
+    delay(500);
+    Serial.println("Waiting for connection");
+ 
+  }
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  SPI.begin();      // Initiate  SPI bus
+  mfrc522.PCD_Init();   // Initiate MFRC522
+  Serial.println("Initializing the scale");
+  
+ scale.set_scale(-9.54);
+                   
+  scale.tare();    
+  Serial.println("Show your card:");
+}
+
+void loop() 
+{
+  
+  // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  {
+    return;
+  }
+  Serial.println("RFID card reading.....");
+  //Show UID on serial monitor
+  for (byte i = 0; i < 4; i++) 
+  {
+      tag += mfrc522.uid.uidByte[i];
+  }
+  Serial.println("RFID card detected with ID : ");
+  Serial.print(tag);
+  Serial.println();
+  if(WiFi.status() == WL_CONNECTED)
+  {
+    String path="http://192.168.217.16:3000/rfidCheck?rfid="+tag;
+    returnStatus = httpGETRequest(path);
+     StaticJsonBuffer<200> jsonBuffer;
+     JsonObject& root = jsonBuffer.parseObject(returnStatus);
+     if (!root.success()) {
+    Serial.println("parseObject() failed");
+    return;
+  }
+    weight = root["maxWeight"];
+    bool exitsU = root["userExists"];
+     String vType=root["vehicleType"];
+  
+    if(exitsU==1) {
+      Serial.println("Rfid tag exists in blockchain");
+      HTTPClient http;
+      StaticJsonBuffer<300> JSONbuffer;   //Declaring static JSON buffer
+      JsonObject& JSONencoder = JSONbuffer.createObject(); 
+  
+      JSONencoder["uid"] = tag;
+      tag = "";
+      JSONencoder["contAdd"] = "0x20A851F2daDE00A94930b266f9Eb2c2FCeadeE8b";
+      //Serial.println(Typeof(vType));
+      if(vType=="Car")
+      {
+        amountValue=30;
+      }
+      else if(vType=="Auto")
+      {
+        amountValue=40;
+      }
+      else if(vType=="Truck")
+      {
+        amountValue=50;
+      }
+      Serial.print(scale.get_units(), 1);
+      Serial.println(weight);
+      Serial.println("checking for over-weight");
+      if(scale.get_units()>weight)
+      {
+        Serial.println("over-weight detected extra charge is being imposed");
+        amountValue=amountValue+10;
+      }
+      else
+      {
+        Serial.println("over-weight not detected");
+      }
+      JSONencoder["amount"] = amountValue;
+      amountValue=0;
+      char JSONmessageBuffer[300];
+      JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+      Serial.println(JSONmessageBuffer);
+      http.begin(wiFiClient, "http://192.168.217.16:3000/rfid");      //Specify request destination
+      http.addHeader("Content-Type", "application/json");  //Specify content-type header
+  
+      int httpCode = http.POST(JSONmessageBuffer);   //Send the request
+      String payload = http.getString();                                        //Get the response payload
+  
+      Serial.println(httpCode);   //Print HTTP return code
+      Serial.println(payload);    //Print request response payload
+  
+      http.end();
+    }
+    else{
+      Serial.println("Rfid doesn't exist");
+      tag = "";
+    }
+  }
+  else 
+  {
+    Serial.println("WiFi Disconnected");
+  }
+  delay(3000);
+} 
+
+String httpGETRequest(String serverName) {
+  HTTPClient http;
+  // Your IP address with path or Domain name with URL path 
+  http.begin(wiFiClient,serverName.c_str());
+  // Send HTTP GET request
+  int httpResponseCode = http.GET();
+
+  String payload = "{}"; 
+
+  if (httpResponseCode>0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    payload = http.getString();
+  }
+  else {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+  }
+ 
+  http.end();
+
+  return payload;
+}
